@@ -9,11 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build with Buildozer
-        uses: kusold/buildozer-action@v0.2
+        uses: sashahilton00/buildozer-action@v1
         with:
+          repository: .
           buildozer_version: stable
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
