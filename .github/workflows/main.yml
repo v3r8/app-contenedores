@@ -12,17 +12,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk python3-venv autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
+          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Setup Buildozer
+      - name: Build with Buildozer
         run: |
-          pip install --upgrade pip
-          pip install buildozer
-          # Configuramos una variable para el SDK donde sí tenemos permisos
-          export BUILDOZER_HOME=$GITHUB_WORKSPACE/.buildozer
+          pip install --user --upgrade pip
+          pip install --user buildozer
+          # Añadimos la ruta de los binarios de python al PATH
+          export PATH=$PATH:~/.local/bin
           buildozer android debug
 
       - name: Upload APK
