@@ -12,17 +12,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
       - name: Build with Buildozer
         run: |
-          pip install --user --upgrade pip
-          pip install --user buildozer
-          # Añadimos la ruta de los binarios de python al PATH
-          export PATH=$PATH:~/.local/bin
+          pip install --upgrade pip
+          pip install buildozer
+          # Pre-creamos la estructura de carpetas y aceptamos licencias
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          # Este comando acepta todas las licencias de SDK automáticamente
+          yes | sdkmanager --licenses || true
+          # Lanzamos la compilación
           buildozer android debug
 
       - name: Upload APK
