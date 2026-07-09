@@ -19,6 +19,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install buildozer
+          # Configuramos el entorno para evitar errores de SDK
           buildozer android debug
 
       - name: Upload APK
