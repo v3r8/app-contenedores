@@ -17,17 +17,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk python3-venv autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Accept Android Licenses
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # Este paso acepta las licencias automáticamente
-          yes | sdkmanager --licenses || true
-
-      - name: Build with Buildozer
+      - name: Setup Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer
+          # Configuramos una variable para el SDK donde sí tenemos permisos
+          export BUILDOZER_HOME=$GITHUB_WORKSPACE/.buildozer
           buildozer android debug
 
       - name: Upload APK
