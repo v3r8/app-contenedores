@@ -17,17 +17,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
+      - name: Aceptar Licencias de Android
+        run: |
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
+          # Este es el comando clave que fuerza la aceptación de todas las licencias
+          # La tubería 'yes' responde 'y' a cada pregunta automáticamente
+          yes | sdkmanager --sdk_root=$HOME/android-sdk --licenses || true
+
       - name: Build with Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Instalamos específicamente las dependencias que Buildozer necesita
-          pip install cython==0.29.33
-          
-          # FORZAMOS a que cree la plataforma antes de compilar
-          buildozer android update
-          
-          # Lanzamos la compilación
+          # Definimos las variables de entorno para que buildozer use el SDK donde hemos aceptado las licencias
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           buildozer android debug
 
       - name: Upload APK
