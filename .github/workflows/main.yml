@@ -21,9 +21,9 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Configuramos variables de entorno para evitar descargas corruptas
-          export BUILDOZER_NDK_VERSION=25b
-          export BUILDOZER_SDK_VERSION=33
+          # Forzamos a Buildozer a descargar el SDK y las herramientas necesarias
+          # Buildozer suele hacer esto solo, pero si falla, es que no tiene permiso o ruta
+          export BUILDOZER_HOME=$GITHUB_WORKSPACE/.buildozer
           buildozer android debug
 
       - name: Upload APK
