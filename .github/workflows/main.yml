@@ -1,4 +1,4 @@
-name: Build APK
+name: Compilar APK Android
 
 on:
   push:
@@ -8,26 +8,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Install dependencies
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Instalar dependencias del sistema
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      - name: Build with Buildozer
+      - name: Configurar variables de entorno para Android
         run: |
-          pip install --upgrade pip
-          pip install buildozer
-          # Forzamos a Buildozer a descargar el SDK y las herramientas necesarias
-          # Buildozer suele hacer esto solo, pero si falla, es que no tiene permiso o ruta
-          export BUILDOZER_HOME=$GITHUB_WORKSPACE/.buildozer
-          buildozer android debug
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Instalar Buildozer
+        run: pip install buildozer
+
+      # ESTE ES EL PASO CLAVE PARA TU ERROR
+      - name: Aceptar licencias del SDK de Android
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          # Descargar cmdline-tools porque no vienen instalados por defecto
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          # Aceptar las licencias automáticamente
+          yes | sdkmanager --licenses
+
+      - name: Construir la App con Buildozer
+        run: buildozer android debug
+
+      - name: Subir el archivo APK generado
+        uses: actions/upload-artifact@v3
         with:
-          name: app-apk
+          name: app-android
           path: bin/*.apk
