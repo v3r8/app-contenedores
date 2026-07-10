@@ -21,8 +21,9 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Forzamos una versión NDK estable y evitamos conflictos
+          # Configuramos variables de entorno para evitar descargas corruptas
           export BUILDOZER_NDK_VERSION=25b
+          export BUILDOZER_SDK_VERSION=33
           buildozer android debug
 
       - name: Upload APK
