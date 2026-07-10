@@ -2,11 +2,18 @@
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Primero ejecutamos buildozer para que descargue el SDK y las herramientas
-          # Si falla por licencia, lo forzamos a aceptar las licencias en la ruta correcta
-          buildozer android debug || ( \
-            echo "El build falló, intentando aceptar licencias..." && \
-            find /home/runner/.buildozer -name sdkmanager -exec sh -c 'yes | {} --licenses' \; && \
-            buildozer android debug \
-          )
           
+          # 1. Intentamos construir
+          # Si falla, el script busca el sdkmanager y acepta las licencias
+          if ! buildozer android debug; then
+            echo "El build falló, buscando sdkmanager para aceptar licencias..."
+            FIND_RESULT=$(find /home/runner/.buildozer -name sdkmanager | head -n 1)
+            if [ -n "$FIND_RESULT" ]; then
+              yes | $FIND_RESULT --licenses
+              echo "Licencias aceptadas, reintentando build..."
+              buildozer android debug
+            else
+              echo "No se encontró sdkmanager, revisa la instalación."
+              exit 1
+            fi
+          fi
