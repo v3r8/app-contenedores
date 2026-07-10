@@ -9,29 +9,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Instalar herramientas
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Aceptar licencias (FORZADO)
+      - name: Aceptar licencias
         run: |
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
-          # Este es el comando "mágico" que suele saltarse el error de AIDL
           yes | sdkmanager --licenses || true
 
-      - name: Compilar
+      - name: Construir APK (Forzando descarga)
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Añadimos un paso de limpieza por si hay basura de intentos anteriores
-          buildozer android clean
+          # BORRAMOS cualquier rastro previo antes de empezar
+          rm -rf .buildozer
+          # Instalamos los requisitos de python-for-android manualmente
+          pip install "cython==0.29.33"
+          # Lanzamos el build
           buildozer android debug
 
-      - name: Subir APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
