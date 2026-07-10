@@ -1,19 +1,44 @@
-- name: Construir la App
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias del sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
+
+      - name: Construir la App
         run: |
           pip install --upgrade pip
           pip install buildozer
           
-          # 1. Intentamos construir
-          # Si falla, el script busca el sdkmanager y acepta las licencias
+          # Intentamos construir. Si falla, buscamos el sdkmanager y aceptamos las licencias.
           if ! buildozer android debug; then
-            echo "El build falló, buscando sdkmanager para aceptar licencias..."
-            FIND_RESULT=$(find /home/runner/.buildozer -name sdkmanager | head -n 1)
-            if [ -n "$FIND_RESULT" ]; then
-              yes | $FIND_RESULT --licenses
-              echo "Licencias aceptadas, reintentando build..."
+            echo "--- Detectado error de licencias, intentando resolverlo ---"
+            SDK_MANAGER=$(find /home/runner/.buildozer -name sdkmanager | head -n 1)
+            
+            if [ -n "$SDK_MANAGER" ]; then
+              yes | $SDK_MANAGER --licenses
+              echo "--- Licencias aceptadas, reintentando compilación ---"
               buildozer android debug
             else
-              echo "No se encontró sdkmanager, revisa la instalación."
+              echo "--- Error: No se encontró sdkmanager para aceptar licencias ---"
               exit 1
             fi
           fi
+
+      - name: Subir el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-android
+          path: bin/*.apk
