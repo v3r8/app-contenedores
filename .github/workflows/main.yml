@@ -17,20 +17,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Accept Android SDK Licenses
-        run: |
-          # Crear carpeta necesaria y aceptar licencias
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # Este paso asegura que el sdkmanager acepte todas las licencias
-          yes | sdkmanager --licenses || true
-
-      - name: Build with Buildozer
+      - name: Install Buildozer and Accept Licenses
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Forzar la versión de NDK para estabilidad
-          export BUILDOZER_NDK_VERSION=25b
+          # Forzamos la creación de la carpeta del SDK para evitar errores
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          # buildozer intentará instalar el SDK, pero si falla, esto ayuda
+          buildozer android clean
+
+      - name: Build
+        run: |
+          # Aceptamos las licencias automáticamente antes de compilar
+          # Este es el truco para que no se detenga en "Accept? (y/N)"
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          
+          # Lanzamos la compilación
           buildozer android debug
 
       - name: Upload APK
