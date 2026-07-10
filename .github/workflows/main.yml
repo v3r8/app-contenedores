@@ -17,20 +17,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Force Accept Licenses
+      - name: Prepare Android Environment and Accept Licenses
         run: |
-          # Creamos la carpeta donde el SDK espera las licencias
+          # Crear directorios necesarios para el SDK
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
-          # Instalamos cmdline-tools y aceptamos licencias de forma forzada
-          # Esto es lo que evita que el proceso se detenga esperando tu respuesta
+          
+          # Instalar herramientas de línea de comandos si fuera necesario y aceptar licencias
+          # El comando 'yes' responde 'y' automáticamente a todas las solicitudes de licencia
           yes | sdkmanager --licenses || true
 
       - name: Build with Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Ejecutamos la compilación
+          # Ejecutar compilación asegurando el entorno
           buildozer android debug
 
       - name: Upload APK
@@ -38,4 +39,3 @@ jobs:
         with:
           name: app-apk
           path: bin/*.apk
-          
