@@ -1,38 +1,12 @@
-name: Build APK
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Instalar dependencias del sistema
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
-
-      - name: Configurar Licencias (Solución al error 1)
-        run: |
-          mkdir -p $HOME/.android
-          touch $HOME/.android/repositories.cfg
-          # Este comando acepta todas las licencias automáticamente
-          yes | sdkmanager --licenses || true
-
-      - name: Construir la App
+- name: Construir la App
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Esto le dice a Buildozer que no se detenga por errores leves
-          buildozer android debug
-
-      - name: Subir el APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-android
-          path: bin/*.apk
+          # Primero ejecutamos buildozer para que descargue el SDK y las herramientas
+          # Si falla por licencia, lo forzamos a aceptar las licencias en la ruta correcta
+          buildozer android debug || ( \
+            echo "El build falló, intentando aceptar licencias..." && \
+            find /home/runner/.buildozer -name sdkmanager -exec sh -c 'yes | {} --licenses' \; && \
+            buildozer android debug \
+          )
+          
