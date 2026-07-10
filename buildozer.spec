@@ -46,7 +46,7 @@ requirements = python3,kivy
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
-# requirements.source.kivy = ../../kivy
+# requirements = python3,kivy,kivymd,requests,certifi
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/data/presplash.png
