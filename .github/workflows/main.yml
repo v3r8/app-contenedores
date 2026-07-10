@@ -12,23 +12,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
+      - name: Accept Android SDK Licenses
+        run: |
+          # Crear carpeta necesaria y aceptar licencias
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          # Este paso asegura que el sdkmanager acepte todas las licencias
+          yes | sdkmanager --licenses || true
+
       - name: Build with Buildozer
         run: |
-          # 1. Preparar Python y herramientas
-          pip install --user --upgrade pip
-          pip install --user buildozer
-          export PATH=$PATH:~/.local/bin
-          
-          # 2. Configurar Buildozer para que no pida confirmación manual
-          # Esto evita el error de "broken pipe" y la falta de licencias
-          export BUILDOZER_HOME=$GITHUB_WORKSPACE/.buildozer
-          
-          # 3. Lanzar la compilación
+          pip install --upgrade pip
+          pip install buildozer
+          # Forzar la versión de NDK para estabilidad
+          export BUILDOZER_NDK_VERSION=25b
           buildozer android debug
 
       - name: Upload APK
