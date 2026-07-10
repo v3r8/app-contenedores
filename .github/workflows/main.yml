@@ -12,26 +12,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
 
-      - name: Aceptar Licencias de Android
+      - name: Force Accept Licenses
         run: |
+          # Creamos la carpeta donde el SDK espera las licencias
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
-          # Este es el comando clave que fuerza la aceptación de todas las licencias
-          # La tubería 'yes' responde 'y' a cada pregunta automáticamente
-          yes | sdkmanager --sdk_root=$HOME/android-sdk --licenses || true
+          # Instalamos cmdline-tools y aceptamos licencias de forma forzada
+          # Esto es lo que evita que el proceso se detenga esperando tu respuesta
+          yes | sdkmanager --licenses || true
 
       - name: Build with Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer
-          # Definimos las variables de entorno para que buildozer use el SDK donde hemos aceptado las licencias
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          # Ejecutamos la compilación
           buildozer android debug
 
       - name: Upload APK
@@ -39,3 +38,4 @@ jobs:
         with:
           name: app-apk
           path: bin/*.apk
+          
