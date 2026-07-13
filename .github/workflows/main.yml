@@ -15,28 +15,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      - name: Instalar Buildozer
+      - name: Instalar Buildozer y herramientas
         run: |
-          pip install --upgrade buildozer
-          pip install --upgrade cython
-
-      - name: Aceptar licencias de Android
-        run: |
-          # Instalamos los command-line tools manualmente para evitar el error de Docker
+          pip install --upgrade buildozer cython
+          # Instalamos una versión específica de las herramientas de línea de comandos para evitar errores
           mkdir -p android-sdk
-          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip commandlinetools-linux-10406996_latest.zip -d cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+          unzip -q commandlinetools-linux-10406996_latest.zip -d cmdline-tools
           mkdir -p android-sdk/cmdline-tools/latest
           mv cmdline-tools/cmdline-tools/* android-sdk/cmdline-tools/latest/
+
+      - name: Aceptar licencias y compilar
+        run: |
           export ANDROID_HOME=$PWD/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           yes | sdkmanager --licenses
-
-      - name: Compilar APK
-        run: |
           buildozer android debug
           
-      - name: Subir el APK resultante
+      - name: Subir APK resultante
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
