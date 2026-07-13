@@ -1,40 +1,31 @@
-name: Build APK
-
+name: CI
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v2
+    
+    - name: Configurar Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Instalar dependencias necesarias
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
+    - name: Aceptar licencias de Android
+      run: |
+        mkdir -p /home/runner/.android/
+        touch /home/runner/.android/repositories.cfg
+        # Esto instala los command-line tools necesarios y acepta las licencias
+        yes | sdkmanager --licenses || echo "Licencias aceptadas"
 
-      - name: Limpiar y preparar
-        run: |
-          # Borramos cualquier rastro previo
-          rm -rf .buildozer
-          mkdir -p .buildozer
-
-      - name: Instalar Buildozer y Cython
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade buildozer
-          pip install cython==0.29.33
-
-      - name: Ejecutar compilación
-        run: |
-          # Ejecutamos buildozer directamente
-          buildozer android debug
-
-      - name: Subir APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-apk
-          path: bin/*.apk
+    - name: Compilar con Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
+      with:
+        buildozer_version: latest
+      env:
+        # Esto es vital para que buildozer no falle al buscar herramientas
+        ANDROID_HOME: /usr/local/lib/android/sdk
