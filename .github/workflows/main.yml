@@ -10,23 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Instalar dependencias del sistema
-        run: |
-          sudo apt-get update
-          # He quitado 'libtinfo5' y 'libtinfo-dev' temporalmente para ver si el resto instala bien
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
-          pip install --upgrade buildozer cython
-
-      - name: Compilar
-        run: |
-          # Aceptar licencias manualmente
-          mkdir -p $HOME/.android
-          touch $HOME/.android/repositories.cfg
-          # Ejecutar buildozer directamente
-          buildozer android debug
-          
-      - name: Subir APK
-        uses: actions/upload-artifact@v4
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
         with:
-          name: app-apk
-          path: bin/*.apk
+          buildozer_version: latest
+        env:
+          # Esto evita problemas de compatibilidad con versiones nuevas de Ubuntu
+          ANDROID_HOME: /usr/local/lib/android/sdk
