@@ -13,19 +13,19 @@ jobs:
       - name: Instalar dependencias del sistema
         run: |
           sudo apt-get update
-          # He cambiado libtinfo5 por libtinfo-dev para que sea compatible con Ubuntu 24.04
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev
+          # He quitado 'libtinfo5' y 'libtinfo-dev' temporalmente para ver si el resto instala bien
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
           pip install --upgrade buildozer cython
 
-      - name: Aceptar licencias y compilar
+      - name: Compilar
         run: |
-          # Crear directorios necesarios
+          # Aceptar licencias manualmente
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
-          # Compilar
+          # Ejecutar buildozer directamente
           buildozer android debug
           
-      - name: Subir APK resultante
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
