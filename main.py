@@ -1,72 +1,55 @@
-import speech_recognition as sr
-from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDRaisedButton
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.label import MDLabel
-from kivy.utils import platform
 
-# Lógica de permisos para Android
-if platform == 'android':
-    from android.permissions import request_permissions, Permission
-    request_permissions([Permission.RECORD_AUDIO, Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION])
+name: Build Flet APK
 
-# Importamos la librería para hardware móvil
-try:
-    from plyer import gps
-except ImportError:
-    gps = None
+on:
+  push:
+    branches: [ main ]
 
-class AppReporteContenedores(MDApp):
-    def build(self):
-        self.theme_cls.primary_palette = "Blue"
-        screen = MDScreen()
-        layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
-        
-        layout.add_widget(MDLabel(text="Reporte de Incidencias", halign="center", font_style="H5"))
-        
-        self.txt_ubicacion = MDTextField(hint_text="Ubicación GPS", readonly=True)
-        layout.add_widget(self.txt_ubicacion)
-        
-        self.txt_descripcion = MDTextField(hint_text="Descripción del daño", multiline=True)
-        layout.add_widget(self.txt_descripcion)
-        
-        btn_gps = MDRaisedButton(text="Obtener Ubicación", on_release=self.obtener_gps)
-        btn_voz = MDRaisedButton(text="Dictar Incidencia", on_release=self.iniciar_voz)
-        
-        layout.add_widget(btn_gps)
-        layout.add_widget(btn_voz)
-        
-        screen.add_widget(layout)
-        return screen
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    def obtener_gps(self, instance):
-        self.txt_ubicacion.text = "Detectando ubicación..."
-        if gps:
-            try:
-                gps.configure(on_location=self.on_gps_location)
-                gps.start()
-            except Exception as e:
-                self.txt_ubicacion.text = "Error al activar GPS"
-        else:
-            self.txt_ubicacion.text = "Badalona, ES (Simulado)"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    def on_gps_location(self, **kwargs):
-        self.txt_ubicacion.text = f"Lat: {kwargs.get('lat')}, Lon: {kwargs.get('lon')}"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    def iniciar_voz(self, instance):
-        self.txt_descripcion.text = "Escuchando... hable ahora."
-        recognizer = sr.Recognizer()
-        try:
-            with sr.Microphone() as source:
-                recognizer.adjust_for_ambient_noise(source)
-                audio = recognizer.listen(source, timeout=5)
-                texto = recognizer.recognize_google(audio, language="es-ES")
-                self.txt_descripcion.text = texto
-        except Exception:
-            self.txt_descripcion.text = "Error al reconocer voz."
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
-if __name__ == '__main__':
-    AppReporteContenedores().run()
-    
+      - name: Install Flet
+        run: pip install flet
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses
+
+      - name: Build Flet APK
+        env:
+          CI: "true"
+        run: flet build apk --python-version 3.12 --yes --verbose
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: build/apk/app-release.apk
