@@ -1,4 +1,3 @@
-
 name: Build Flet APK
 
 on:
