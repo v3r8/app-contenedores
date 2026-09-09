@@ -28,4 +28,4 @@ jobs:
           pip install flet
 
       - name: Build Flet APK
-        run: flet build apk
+        run: echo "y" | flet build apk
