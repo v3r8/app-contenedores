@@ -32,6 +32,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install flet
 
+      - name: Create project configuration if missing
+        run: |
+          if [ ! -f pubspec.yaml ]; then
+            echo "Creating basic pubspec.yaml..."
+            cat <<EOF > pubspec.yaml
+            name: app_contenedores
+            description: Aplicacion de contenedores
+            publish_to: "none"
+            version: 1.0.0+1
+            environment:
+              sdk: '>=3.0.0 <4.0.0'
+            dependencies:
+              flutter:
+                sdk: flutter
+              flet: any
+            flutter:
+              uses-material-design: true
+            EOF
+          fi
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
