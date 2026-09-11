@@ -32,23 +32,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install flet
 
-      - name: Create project configuration if missing
+      - name: Create Flet project if missing
         run: |
-          if [ ! -f pubspec.yaml ]; then
-            echo "Creating basic pubspec.yaml..."
-            cat << 'EOF' > pubspec.yaml
-          name: app_contenedores
-          description: Aplicacion de contenedores
-          publish_to: "none"
-          version: 1.0.0+1
-          environment:
-            sdk: '>=3.0.0 <4.0.0'
-          dependencies:
-            flutter:
-              sdk: flutter
-            flet: any
-          flutter:
-            uses-material-design: true
+          if [ ! -f main.py ]; then
+            cat > main.py << 'EOF'
+          import flet as ft
+
+          def main(page: ft.Page):
+              page.title = "App Contenedores"
+              page.add(ft.Text("Hello, Flet!"))
+
+          ft.app(target=main)
           EOF
           fi
 
@@ -69,4 +63,4 @@ jobs:
 
       - name: Build Flet APK
         run: |
-          echo "y" | flet build apk --verbose
+          flet build apk --verbose
