@@ -36,20 +36,20 @@ jobs:
         run: |
           if [ ! -f pubspec.yaml ]; then
             echo "Creating basic pubspec.yaml..."
-            cat <<EOF > pubspec.yaml
-            name: app_contenedores
-            description: Aplicacion de contenedores
-            publish_to: "none"
-            version: 1.0.0+1
-            environment:
-              sdk: '>=3.0.0 <4.0.0'
-            dependencies:
-              flutter:
-                sdk: flutter
-              flet: any
+            cat << 'EOF' > pubspec.yaml
+          name: app_contenedores
+          description: Aplicacion de contenedores
+          publish_to: "none"
+          version: 1.0.0+1
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
             flutter:
-              uses-material-design: true
-            EOF
+              sdk: flutter
+            flet: any
+          flutter:
+            uses-material-design: true
+          EOF
           fi
 
       - name: Set up Java
