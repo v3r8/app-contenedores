@@ -69,4 +69,4 @@ jobs:
 
       - name: Build Flet APK
         run: |
-          flet build apk --verbose
+          echo "y" | flet build apk --verbose
