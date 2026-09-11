@@ -48,4 +48,5 @@ jobs:
         run: yes | flutter doctor --android-licenses
 
       - name: Build Flet APK
-        run: echo "y" | flet build apk -v
+        run: |
+          flet build apk --verbose
