@@ -73,7 +73,7 @@ jobs:
 
       - name: Build Flet APK
         run: |
-          flet build apk --verbose --include-dev-deps
+          flet build apk --verbose
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
