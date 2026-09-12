@@ -74,3 +74,11 @@ jobs:
       - name: Build Flet APK
         run: |
           flet build apk --verbose --include-dev-deps
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-contenedores-apk
+          path: |
+            dist/*.apk
+            build/**/outputs/flutter-apk/*.apk
