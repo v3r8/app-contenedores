@@ -1,76 +1,26 @@
-name: Compilar APK
+Recuperaré los registros de trabajo para identificar el fallo y sugerir una solución.
 
-on:
-  push:
-    branches: [ main ]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+Job 103746502754 en v3r8/app-contenedores
+Ahora déjame sacar el archivo del flujo de trabajo para ver el contexto completo:
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.44.8'
-          channel: 'stable'
-          cache: true
+Ver archivo .github/workflows/build.yml
+Problema
+El trabajo está fallando porque el comando no reconoce el argumento. El error muestra:flet--app
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev mesa-utils build-essential
+Código
+flet: error: unrecognized arguments: --app app_contenedores
+El problema está en el paso Build Flet APK (líneas 74-82) de tu flujo de trabajo. La sintaxis de comandos es incorrecta para la versión utilizada (flet-cli 0.86.5).flet build apk
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install flet
+Solución
+Actualiza el comando en tu flujo de trabajo. La sintaxis correcta no se usa como nombre de la aplicación. Aquí está la solución:flet build apk--app
 
-      - name: Create Flet project if missing
-        run: |
-          if [ ! -f main.py ]; then
-            cat > main.py << 'EOF'
-          import flet as ft
+Archivo: .github/workflows/build.yml
 
-          def main(page: ft.Page):
-              page.title = "App Contenedores"
-              page.add(ft.Text("Hello, Flet!"))
+Sustituye las líneas 74-82 por:
 
-          ft.app(target=main)
-          EOF
-          fi
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-levels: '34'
-          build-tools-version: '34.0.0'
-          ndk-version: '26.1.10909125'
-
-      - name: Set up Android environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/ndk/26.1.10909125" >> $GITHUB_PATH
-
-      - name: Accept Android licenses
-        run: yes | flutter doctor --android-licenses
-
-      - name: Verify Flutter setup
-        run: flutter doctor -v
-
+YAML
       - name: Build Flet APK
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME
@@ -78,12 +28,54 @@ jobs:
           
           flet build apk \
             --verbose \
-            --org com.example
+            --org com.example \
+            --output app_contenedores.apk
+Cambios clave:
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-contenedores-apk
-          path: |
-            dist/*.apk
-            build/**/outputs/flutter-apk/*.apk
+Sustituye con para especificar el nombre del archivo APK de salida--app app_contenedores--output app_contenedores.apk
+Esto coincide con la interfaz real de comandos flet-cli para la versión 0.86.5
+Alternativamente, si quieres comprobar las opciones correctas de construcción de flet, puedes añadir un paso para ejecutar y verificar los argumentos disponibles antes de construir.flet build apk --help
+
+Analizaré el trabajo que está fallando recuperando sus registros.
+
+
+Job 103747479320 en v3r8/app-contenedores
+Ahora déjame sacar el archivo del flujo de trabajo para ver la definición completa del trabajo:
+
+
+Ver archivo .github/workflows/build.yml
+Solución para el trabajo que falla
+El trabajo falló durante el paso "Build Flet APK" con el error: "Error al compilar la app Flet". Los registros muestran "¡No se han encontrado problemas!", lo que indica que el comando de compilación Flet encontró un fallo interno sin mensajería de error clara.
+
+Causa raíz
+El problema es que el comando carece del parámetro --app-name, que es necesario para especificar el nombre de la aplicación para la compilación del APK. Sin esto, Flet fracasa en silencio.flet build apk
+
+Arreglar
+Actualiza el paso "Build Flet APK" en tu flujo de trabajo (líneas 74-81) para incluir el parámetro que falta:
+
+YAML
+- name: Build Flet APK
+  run: |
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/26.1.10909125
+    
+    flet build apk \
+      --verbose \
+      --org com.example \
+      --app-name app_contenedores
+Recomendaciones adicionales:
+
+Añadir captura de salida de error: Modificar el comando de compilación para capturar mejor los errores internos de Flet:
+
+YAML
+flet build apk \
+  --verbose \
+  --org com.example \
+  --app-name app_contenedores \
+  2>&1
+Verifica la compatibilidad de la versión Flet: Asegúrate de que tu versión sea compatible con la versión instalada de Flet. El flujo de trabajo crea una aplicación mínima, pero si existe una real, comprueba que sigue la API actual de Flet.main.pymain.py
+
+Comprueba la compatibilidad del SDK de Android: Verifica que Flutter
+
+Si haces estos cambios, la versión del APK debería completarse con éxito.
+
