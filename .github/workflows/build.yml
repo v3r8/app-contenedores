@@ -78,8 +78,8 @@ jobs:
           
           flet build apk \
             --verbose \
-            --org=com.example \
-            --app=app_contenedores
+            --org com.example \
+            --app app_contenedores
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
