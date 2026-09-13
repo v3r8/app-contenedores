@@ -35,7 +35,7 @@ jobs:
       - name: Initialize Flet project structure
         run: |
           rm -rf main.py
-          flet create app_contenedores --template=counter
+          flet create app_contenedores --template=app
           cd app_contenedores
           cat > main.py << 'EOF'
           import flet as ft
@@ -46,6 +46,18 @@ jobs:
 
           ft.app(target=main)
           EOF
+
+      - name: Verify pubspec.yaml and project structure
+        run: |
+          cd app_contenedores
+          if [ -f "pubspec.yaml" ]; then
+            echo "¡El archivo pubspec.yaml existe!"
+            echo "--- Contenido del pubspec.yaml ---"
+            cat pubspec.yaml
+          else
+            echo "Error: No se encuentra el archivo pubspec.yaml"
+            exit 1
+          fi
 
       - name: Set up Java
         uses: actions/setup-java@v4
