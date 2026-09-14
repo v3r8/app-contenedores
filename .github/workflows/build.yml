@@ -37,6 +37,18 @@ jobs:
           flutter config --android-sdk $ANDROID_HOME
           yes | flutter doctor --android-licenses || true
 
+      - name: Set up Android SDK/NDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 31
+          ndk-version: '25.1.8937393'
+
+      - name: Configure Gradle
+        run: |
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393
+          flutter config --android-sdk $ANDROID_HOME
+          yes | flutter doctor --android-licenses || true
+
       - name: Build Flet App
         uses: flet-dev/flet-build-action@v1
         with:
