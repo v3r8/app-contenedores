@@ -30,4 +30,4 @@ jobs:
 
       - name: Build APK with Flet
         run: |
-          flet build apk --app-name "Appcontenedores"
+          flet build apk
