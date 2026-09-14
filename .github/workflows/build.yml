@@ -1,21 +1,17 @@
-I'll retrieve the job logs to understand what's failing.
+name: Build Flet APK
 
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
 
-Job 103955323675 in v3r8/app-contenedores
-Now let me get the workflow file to understand the full context:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-
-View file .github/workflows/build.yml
-Solution
-The job is failing because Flutter is not installed on the runner. The workflow attempts to use flutter commands in steps 26-33 (lines 28 and 32), but Flutter hasn't been set up yet.
-
-Root Cause
-The workflow is missing a step to install Flutter before trying to use it. The flet-dev/flet-build-action@v1 action on line 36 likely handles Flutter setup, but the earlier steps try to use Flutter commands before that action runs.
-
-Fix
-Add a Flutter setup step before the Accept Android licenses step. Update your workflow:
-
-YAML
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -35,49 +31,14 @@ YAML
       - name: Accept Android licenses
         run: |
           yes | flutter doctor --android-licenses || true
-The subosito/flutter-action@v2 action will:
 
-Download and install Flutter
-Add Flutter to your PATH
-Make flutter commands available for subsequent steps
-This should resolve the flutter: command not found error and allow your build to proceed.
+      - name: Configure Android SDK
+        run: |
+          flutter config --android-sdk $ANDROID_HOME
+          yes | flutter doctor --android-licenses || true
 
-I'll retrieve the job logs to identify the failure and provide a solution.
-
-
-Job 103956488310 in v3r8/app-contenedores
-Now let me get the workflow file to understand the configuration:
-
-
-View file .github/workflows/build.yml
-Solution for Failing Job
-Problem: The Flutter setup action failed with the error:
-
-Code
-Unable to determine Flutter version for channel: stable version: stable architecture: x64
-This occurs at the "Set up Flutter" step (line 21-24 in your workflow). The subosito/flutter-action@v2 action cannot resolve the stable channel version, likely due to network issues, Flutter release availability, or action compatibility.
-
-Recommended Fixes
-Option 1: Specify an explicit Flutter version (Recommended) Replace line 24 in your workflow:
-
-YAML
-- name: Set up Flutter
-  uses: subosito/flutter-action@v2
-  with:
-    flutter-version: '3.24.0'  # Use a specific stable version
-Option 2: Use a different release channel
-
-YAML
-- name: Set up Flutter
-  uses: subosito/flutter-action@v2
-  with:
-    flutter-version: 'latest'  # Try 'latest' instead of 'stable'
-Option 3: Update the action to latest version
-
-YAML
-- name: Set up Flutter
-  uses: subosito/flutter-action@v3  # Use v3 instead of v2
-  with:
-    flutter-version: 'stable'
-Recommended approach: Use Option 1 with a pinned version (e.g., 3.24.0) for consistency and reproducibility across builds.
-
+      - name: Build Flet App
+        uses: flet-dev/flet-build-action@v1
+        with:
+          target: apk
+          runner-python-version: "3.10"
