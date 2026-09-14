@@ -1,96 +1,50 @@
+name: Build Flet APK Direct
 
-I'll retrieve the logs for this failing job to identify the issue and provide a solution.
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-Job 104012139222 in v3r8/app-contenedores
-Let me get the workflow file to understand the job configuration better:
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-View file .github/workflows/build.yml
-Solution for Failing Flet APK Build Job
-The build failed with "Error building Flet app" during the Build Flet App step using the flet-dev/flet-build-action@v1 action. The logs show the build process completed analysis with no issues found, but then failed with exit code 1.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
 
-Root Cause
-The error occurs in the flet-build-action, likely due to:
+      - name: Install dependencies & Flet CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev
+          pip install --upgrade pip
+          pip install flet flet-cli
 
-Missing or incompatible dependencies for the APK build process
-Flet version mismatch - The action may require specific versions of Flutter, Android SDK, or other tools
-Insufficient Android SDK setup before the Flet action runs
-Recommended Solutions
-1. Add explicit Android SDK setup before Flet build:
+      - name: Accept Android licenses
+        run: |
+          yes | flutter doctor --android-licenses || true
 
-YAML
-- name: Set up Android SDK
-  run: |
-    export ANDROID_SDK_ROOT=$ANDROID_HOME
-    export ANDROID_SDK_HOME=$ANDROID_HOME
-    sdkmanager --update
-    sdkmanager "platforms;android-34"
-    sdkmanager "build-tools;35.0.0"
-2. Update the workflow to specify Python and ensure Flet CLI is properly installed:
+      - name: Configure Android SDK
+        run: |
+          flutter config --android-sdk $ANDROID_HOME
+          yes | flutter doctor --android-licenses || true
 
-YAML
-- name: Set up Python
-  uses: actions/setup-python@v4
-  with:
-    python-version: '3.10'
-
-- name: Install Flet
-  run: |
-    pip install flet-cli
-
-- name: Build Flet App
-  uses: flet-dev/flet-build-action@v1
-  with:
-    target: apk
-    runner-python-version: "3.10"
-    verbose: true
-3. Alternative: Use flet build directly instead of the action:
-
-YAML
-- name: Build Flet App
-  run: |
-    pip install flet-cli
-    flet build apk --verbose
-Start with Solution 1 + 2 to ensure proper Android SDK configuration and Python dependencies are in place before triggering the Flet build action.
-
-I'll retrieve the job logs to identify the failure and provide a solution.
-
-
-Job 104014769568 in v3r8/app-contenedores
-Now let me examine the workflow file to understand the job configuration:
-
-
-View file .github/workflows/build.yml
-Solution: Fix Non-Interactive Build Process
-The job is failing because the flet build apk command is prompting for user input when Flutter SDK needs to be installed, but the process is running in a non-interactive environment.
-
-The error shows:
-
-Code
-EOFError: EOF when reading a line
-Flutter SDK 3.44.8 is required. It will be installed now. Proceed? [y/n] (y):
-Fix
-Modify the Build APK Directly step in your workflow to pre-install the required Flutter SDK version and pass the --skip-version-check flag to bypass the prompt:
-
-YAML
-- name: Build APK Directly
-  run: |
-    flutter pub get
-    flet build apk --verbose --skip-version-check
-Alternatively, ensure Flutter is fully configured before the build by adding explicit version setup:
-
-YAML
-- name: Build APK Directly
-  env:
-    FLUTTER_SKIP_ANALYTICS: true
-  run: |
-    flutter doctor -v
-    flutter pub get
-    flet build apk --verbose --skip-version-check --no-version-check
-Key changes:
-
-Add --skip-version-check and --no-version-check flags to prevent interactive prompts
-Run flutter pub get to fetch dependencies before building
-Run flutter doctor -v to verify the Flutter environment is properly initialized
-This will allow the build to proceed without waiting for user input in the non-interactive CI environment.
+      - name: Build APK Directly
+        run: |
+          flutter pub get
+          yes | flet build apk --verbose --skip-version-check
