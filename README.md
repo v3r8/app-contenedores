@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Appcontenedores app
 
 ## Run the app
@@ -67,3 +68,6 @@ flet build web -v
 ```
 
 For more details on building Web app, refer to the [Web Packaging Guide](https://flet.dev/docs/publish/web/).
+=======
+# app-contenedores
+>>>>>>> d99ef047fd9400c1b1f4b722e1be4ab5235a5e33
