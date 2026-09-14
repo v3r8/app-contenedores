@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -19,6 +25,11 @@ jobs:
 
       - name: Accept Android licenses
         run: |
+          yes | flutter doctor --android-licenses || true
+
+      - name: Configure Android SDK
+        run: |
+          flutter config --android-sdk $ANDROID_HOME
           yes | flutter doctor --android-licenses || true
 
       - name: Build Flet App
