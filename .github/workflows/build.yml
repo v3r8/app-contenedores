@@ -37,9 +37,12 @@ jobs:
           flutter config --android-sdk $ANDROID_HOME
           yes | flutter doctor --android-licenses || true
 
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
       - name: Build Flet App
         uses: flet-dev/flet-build-action@v1
         with:
           target: apk
           runner-python-version: "3.10"
-          
+          verbose: true
