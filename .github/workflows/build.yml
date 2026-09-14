@@ -1,33 +1,70 @@
-name: Build Flet APK
+I'll retrieve the job logs to identify the failure and help you find a solution.
 
-on:
-  push:
-    branches: [ "master" ]
-  workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+Job 103863065700 in v3r8/app-contenedores
+Let me get the workflow file to see the full command:
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+View file .github/workflows/build.yml
+Solution
+The job is failing because the flet build command doesn't recognize the --app-name argument. The error shows:
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flet
+Code
+flet: error: unrecognized arguments: --app-name Appcontenedores
+The flet CLI in version 0.86.5 doesn't support the --app-name flag. Instead, you need to configure the app name through a pubspec.yaml file or use a different approach.
 
-      - name: Build APK with Flet
-        run: |
-          flet build apk
+Fix
+Update your workflow file to remove the --app-name argument:
+
+YAML
+- name: Build APK with Flet
+  run: |
+    flet build apk
+Alternatively, if you need to specify the app name, create a pubspec.yaml or flet.config.json configuration file in your repository root with the appropriate app name configuration, then build without the flag.
+
+Source: .github/workflows/build.yml
+
+I'll retrieve the job logs to identify the failure and help you find a solution.
+
+
+Job 103863512509 in v3r8/app-contenedores
+Now let me get the workflow file to understand the full context:
+
+
+View file .github/workflows/build.yml
+Problem
+The flet build apk command is failing because:
+
+Flutter SDK missing: The Flet CLI requires Flutter SDK 3.44.8 to be installed
+Interactive prompt blocking: Flet is trying to prompt the user with [y/n] to confirm Flutter SDK installation, but in CI/CD environments there's no interactive input (EOF error)
+Solution
+Add the --no-ios flag and use the --flutter-version parameter, but more importantly, pre-install Flutter SDK before running the build command. Update your workflow:
+
+YAML
+- name: Set up Flutter
+  run: |
+    git clone https://github.com/flutter/flutter.git -b 3.44.8 ~/flutter
+    echo "$HOME/flutter/bin" >> $GITHUB_PATH
+    flutter doctor
+
+- name: Build APK with Flet
+  run: |
+    flet build apk --no-interactive
+Alternatively, if you want a simpler approach, install Flutter through actions/setup-flutter@v4:
+
+YAML
+- name: Set up Flutter
+  uses: subosito/flutter-action@v2
+  with:
+    flutter-version: '3.44.8'
+
+- name: Build APK with Flet
+  run: |
+    flet build apk
+Key changes:
+
+Add Flutter SDK setup before the build step (Flet requires it pre-installed)
+Use --no-interactive flag to prevent interactive prompts in CI
+Verify Flutter installation with flutter doctor
+This ensures all dependencies are available before Flet attempts the build, preventing the EOF error and SDK initialization failure.
+
