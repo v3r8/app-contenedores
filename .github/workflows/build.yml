@@ -46,5 +46,6 @@ jobs:
 
       - name: Build APK Directly
         run: |
+          flet create . --force || true
           flutter pub get
           yes | flet build apk --verbose --skip-version-check
