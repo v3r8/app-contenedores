@@ -1,51 +1,56 @@
 name: Build Flet APK Direct
 
 on:
-  push:
-    branches: [ "master" ]
-  workflow_dispatch:
+    push:
+        branches: [ "master" ]
+    workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+            - name: Set up Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'temurin'
+                  java-version: '17'
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.10'
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
+            - name: Set up Flutter
+              uses: subosito/flutter-action@v2
+              with:
+                  flutter-version: '3.24.0'
 
-      - name: Install dependencies & Flet CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev
-          pip install --upgrade pip
-          pip install flet flet-cli
+            - name: Install dependencies & Flet CLI
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev
+                  pip install --upgrade pip
+                  pip install flet flet-cli
 
-      - name: Accept Android licenses
-        run: |
-          yes | flutter doctor --android-licenses || true
+            - name: Accept Android licenses
+              run: |
+                  yes | flutter doctor --android-licenses || true
 
-      - name: Configure Android SDK
-        run: |
-          flutter config --android-sdk $ANDROID_HOME
-          yes | flutter doctor --android-licenses || true
+            - name: Configure Android SDK
+              run: |
+                  flutter config --android-sdk $ANDROID_HOME
+                  yes | flutter doctor --android-licenses || true
 
-      - name: Build APK Directly
-        run: |
-          flet create . --force || true
-          flutter pub get
-          yes | flet build apk --verbose --skip-version-check
+            - name: Prepare Flet Project Structure
+              run: |
+                  if [ ! -f "pubspec.yaml" ]; then
+                    flet create . --force
+                  fi
+
+            - name: Build APK Directly
+              run: |
+                  flutter pub get
+                  yes | flet build apk --verbose --skip-version-check
