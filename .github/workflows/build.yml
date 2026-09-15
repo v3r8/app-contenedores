@@ -46,8 +46,24 @@ jobs:
 
       - name: Prepare Flet Project Structure
         run: |
-          rm -f pubspec.yaml
-          flet create . --template=app --force || true
+          if [ ! -f "pubspec.yaml" ]; then
+            cat > pubspec.yaml << 'EOF'
+          name: app_contenedores
+          description: App Contenedores
+          publish_to: 'none'
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+          dev_dependencies:
+            flutter_test:
+              sdk: flutter
+          flutter:
+            uses-material-design: true
+          EOF
+          fi
+
           if [ ! -f "main.py" ]; then
             echo "import flet as ft
 
