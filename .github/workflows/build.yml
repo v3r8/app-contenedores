@@ -46,13 +46,14 @@ jobs:
 
       - name: Prepare Flet Project Structure
         run: |
-          if [ ! -f "pubspec.yaml" ]; then
-            flet create .
+          if [ ! -d "assets" ] && [ ! -f "pubspec.yaml" ]; then
+            flet create . --template=basic
           fi
 
       - name: Build APK Directly
         env:
           CI: true
         run: |
+          cd $GITHUB_WORKSPACE
           flutter pub get
           flet build apk --verbose -y
