@@ -16,4 +16,5 @@ jobs:
         uses: flet-dev/flet-build-action@v1
         with:
           target: apk
+          main: main.py
           build-number: ${{ github.run_number }}
