@@ -47,7 +47,7 @@ jobs:
       - name: Prepare Flet Project Structure
         run: |
           if [ ! -f "pubspec.yaml" ]; then
-            flet create . --force
+            flet create .
           fi
 
       - name: Build APK Directly
