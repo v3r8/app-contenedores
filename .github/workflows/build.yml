@@ -42,4 +42,4 @@ jobs:
 
       - name: Build APK via Flet CLI
         run: |
-          flet build apk --verbose
+          echo "y" | flet build apk --verbose
