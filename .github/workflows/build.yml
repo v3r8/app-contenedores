@@ -46,8 +46,15 @@ jobs:
 
       - name: Prepare Flet Project Structure
         run: |
-          if [ ! -d "assets" ] && [ ! -f "pubspec.yaml" ]; then
+          if [ ! -f "pubspec.yaml" ]; then
             flet create . --template=app
+          fi
+          # Asegurar que existe un main.py base si no se subió en la raíz
+          if [ ! -f "main.py" ]; then
+            echo "import flet as ft" > main.py
+            echo "def main(page: ft.Page):" >> main.py
+            echo "    page.add(ft.Text('App Contenedores'))" >> main.py
+            echo "ft.app(target=main)" >> main.py
           fi
 
       - name: Build APK Directly
@@ -56,4 +63,4 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           flutter pub get
-          flet build apk --verbose -y
+          yes | flet build apk --verbose
