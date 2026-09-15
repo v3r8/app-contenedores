@@ -1,4 +1,4 @@
-name: Build Flet APK Direct
+name: Build Flet APK
 
 on:
   push:
@@ -6,114 +6,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Build APK with Flet Action
+        uses: flet-dev/flet-build-action@v1
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev
-
-      - name: Prepare Project Files
-        run: |
-          if [ ! -f "pubspec.yaml" ]; then
-            cat > pubspec.yaml << 'EOF'
-          name: app_contenedores
-          description: App Contenedores
-          publish_to: 'none'
-          environment:
-            sdk: '>=3.0.0 <4.0.0'
-          dependencies:
-            flutter:
-              sdk: flutter
-            flet: ^0.24.0
-          dev_dependencies:
-            flutter_test:
-              sdk: flutter
-          flutter:
-            uses-material-design: true
-            assets:
-              - main.py
-          EOF
-          fi
-
-          mkdir -p lib
-          if [ ! -f "lib/main.dart" ]; then
-            cat > lib/main.dart << 'EOF'
-          import 'package:flutter/material.dart';
-
-          void main() {
-            runApp(const MyApp());
-          }
-
-          class MyApp extends StatelessWidget {
-            const MyApp({Key? key}) : super(key: key);
-
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(
-                title: 'App Contenedores',
-                theme: ThemeData(primarySwatch: Colors.blue),
-                home: const MyHomePage(title: 'App Contenedores'),
-              );
-            }
-          }
-
-          class MyHomePage extends StatefulWidget {
-            const MyHomePage({Key? key, required this.title}) : super(key: key);
-            final String title;
-
-            @override
-            State<MyHomePage> createState() => _MyHomePageState();
-          }
-
-          class _MyHomePageState extends State<MyHomePage> {
-            @override
-            Widget build(BuildContext context) {
-              return Scaffold(
-                appBar: AppBar(title: Text(widget.title)),
-                body: const Center(child: Text('App Contenedores')),
-              );
-            }
-          }
-          EOF
-          fi
-
-          if [ ! -f "main.py" ]; then
-            echo "import flet as ft
-
-          def main(page: ft.Page):
-              page.add(ft.Text('App Contenedores'))
-
-          if __name__ == '__main__':
-              ft.app(target=main)" > main.py
-          fi
-
-      - name: Accept Android licenses & Configure SDK
-        run: |
-          flutter config --android-sdk $ANDROID_HOME
-          yes | flutter doctor --android-licenses || true
-
-      - name: Build Flutter APK
-        run: |
-          flutter pub get
-          flutter build apk --release
+          target: apk
+          build-number: ${{ github.run_number }}
