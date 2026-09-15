@@ -1,3 +1,4 @@
+
 name: Build Flet APK Direct
 
 on:
@@ -49,7 +50,6 @@ jobs:
           if [ ! -f "pubspec.yaml" ]; then
             flet create . --template=app
           fi
-          # Asegurar que existe un main.py base si no se subió en la raíz
           if [ ! -f "main.py" ]; then
             echo "import flet as ft" > main.py
             echo "def main(page: ft.Page):" >> main.py
