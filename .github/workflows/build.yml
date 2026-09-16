@@ -49,4 +49,4 @@ jobs:
 
       - name: Build APK via Flet CLI
         run: |
-          echo "y" | flet build apk --verbose --release
+          flet build apk --verbose --release
