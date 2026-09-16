@@ -42,6 +42,11 @@ jobs:
           api-level: 31
           build-tools-version: '34.0.0'
 
+      - name: Install Android SDK Tools & Components
+        run: |
+          sdkmanager --install "cmdline-tools;latest" --sdk_root=$ANDROID_SDK_ROOT || true
+          sdkmanager --install "platform-tools" "build-tools;34.0.0" "platforms;android-31" --sdk_root=$ANDROID_SDK_ROOT || true
+
       - name: Accept Android licenses
         run: |
           mkdir -p $ANDROID_SDK_ROOT/licenses
