@@ -43,11 +43,11 @@ jobs:
           build-tools-version: '34.0.0'
           ndk-version: '25.2.9519653'
           cache: true
+          install-system-images: true
 
-      - name: Accept Android licenses & Install SDK tools
+      - name: Accept Android licenses
         run: |
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-31"
+          yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Resolve Flutter dependencies
         run: |
