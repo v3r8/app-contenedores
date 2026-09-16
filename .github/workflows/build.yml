@@ -42,11 +42,12 @@ jobs:
           packages: 'platform-tools platforms;android-31 build-tools;34.0.0 ndk;25.2.9519653'
           accept-android-sdk-licenses: true
 
-      - name: Resolve Flutter dependencies
+      - name: Locate Flet project and build APK
         run: |
+          PROJECT_DIR=$(dirname $(find . -name "pyproject.toml" -not -path "*/.*" -print -quit))
+          echo "Found Flet project root at: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
+          
           flutter pub get
           flutter doctor -v
-
-      - name: Build APK via Flet
-        run: |
           python -m flet build apk --verbose --release
