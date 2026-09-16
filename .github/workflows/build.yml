@@ -26,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.44.8'
           cache: true
 
       - name: Install system dependencies & Flet CLI
@@ -34,7 +34,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev
           python -m pip install --upgrade pip
-          python -m pip install flet flet-cli
+          python -m pip install "flet==0.86.5" "flet-cli==0.86.5"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
