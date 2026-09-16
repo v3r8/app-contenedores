@@ -43,11 +43,19 @@ jobs:
           accept-android-sdk-licenses: true
 
       - name: Locate Flet project and build APK
+        shell: bash
         run: |
-          PROJECT_DIR=$(dirname $(find . -name "pyproject.toml" -not -path "*/.*" -print -quit))
+          set -euo pipefail
+          PROJECT_DIR="$(find . -name pyproject.toml \
+            -not -path './.git/*' \
+            -print -quit | xargs -r dirname)"
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Could not find pyproject.toml"
+            exit 1
+          fi
+
           echo "Found Flet project root at: $PROJECT_DIR"
           cd "$PROJECT_DIR"
-          
-          flutter pub get
-          flutter doctor -v
+
           python -m flet build apk --verbose --release
