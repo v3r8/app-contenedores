@@ -58,4 +58,4 @@ jobs:
           echo "Found Flet project root at: $PROJECT_DIR"
           cd "$PROJECT_DIR"
 
-          flet build apk --verbose --release
+          flet build apk --verbose
