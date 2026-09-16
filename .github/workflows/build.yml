@@ -37,7 +37,7 @@ jobs:
           pip install flet flet-cli
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         with:
           api-level: 31
           build-tools-version: '34.0.0'
