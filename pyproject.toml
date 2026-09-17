@@ -1,26 +1,72 @@
+Job 105280984933 in v3r8/app-contenedores
+
+Using results of get file and 2 other tool calls
+The job fails in flet build apk, not during cache restoration or Android SDK setup. The log ends with:
+
+Error building Flet app - see the log of failed command above.
+
+The main problem in the workflow is that Flet versions are not pinned consistently:
+
+The workflow installs flet==0.86.5 and flet-cli==0.86.5.
+pyproject.toml declares flet>=0.86.5.
+Running python -m pip install . can therefore upgrade flet to a newer version while leaving flet-cli at 0.86.5.
+The workflow also forces Flutter 3.44.8, which may not be compatible with the installed Flet release.
+Recommended changes
+Pin the project dependency exactly:
+
+TOML
 [project]
 name = "appcontenedores"
 version = "0.1.0"
-description = ""
-readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-    { name = "Flet developer", email = "you@example.com" }
-]
+
 dependencies = [
-    "flet>=0.86.5"
+    "flet==0.86.5",
 ]
+Then install the project and CLI together, so pip cannot create a mixed Flet installation:
 
-[dependency-groups]
-dev = [
-    "flet-cli>=0.86.5",
-    "flet-desktop>=0.86.5",
-    "flet-web>=0.86.5",
-    # Integration testing with `flet test` / pytest. The `test` extra installs
-    # pytest, pytest-asyncio and the screenshot-comparison dependencies.
-    # `flet[test]>=0.86.5`,
-]
+YAML
+- name: Install system dependencies & Flet
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y libgtk-3-dev
+    python -m pip install --upgrade pip
+    python -m pip install \
+      "flet==0.86.5" \
+      "flet-cli==0.86.5"
 
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["tests"]
+- name: Locate Flet project and install dependencies
+  shell: bash
+  run: |
+    set -euo pipefail
+
+    PROJECT_DIR="$(find . \
+      -path './.git' -prune -o \
+      -name pyproject.toml -print -quit | xargs -r dirname)"
+
+    test -n "$PROJECT_DIR" || {
+      echo "Could not find pyproject.toml"
+      exit 1
+    }
+
+    echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+    cd "$PROJECT_DIR"
+
+    python -m pip install --no-deps .
+    python -m pip check
+    flet --version
+The important change is --no-deps: the workflow has already installed the exact Flet version, so installing the local package cannot silently replace it with a newer one.
+
+Also use the Flutter version supported by Flet 0.86.5, rather than assuming the newest Flutter version is compatible. If Flet 0.86.5 documents a specific Flutter version, set it explicitly, for example:
+
+YAML
+- name: Set up Flutter
+  uses: subosito/flutter-action@v2
+  with:
+    flutter-version: '<version-supported-by-flet-0.86.5>'
+    channel: stable
+    cache: true
+If Flet’s supported version is not required explicitly, remove the Flutter setup step and let the Flet toolchain manage its expected Flutter version.
+
+The workflow definition is here: .github/workflows/build.yml, and the dependency declaration is in pyproject.toml.
+

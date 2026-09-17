@@ -71,7 +71,8 @@ jobs:
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
           cd "$PROJECT_DIR"
-          python -m pip install .
+          python -m pip install --no-deps .
+          python -m pip check
 
       - name: Build APK
         shell: bash
