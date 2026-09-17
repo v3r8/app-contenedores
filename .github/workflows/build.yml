@@ -26,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.4'
+          flutter-version: '3.44.8'
           cache: true
 
       - name: Install system dependencies & Flet CLI
@@ -37,6 +37,11 @@ jobs:
           python -m pip install \
             "flet==0.86.5" \
             "flet-cli==0.86.5"
+
+      - name: Verify tool versions
+        run: |
+          flutter --version
+          flet --version
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
