@@ -26,7 +26,8 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.8'
+          flutter-version: '3.35.7'
+          channel: stable
           cache: true
 
       - name: Install system dependencies & Flet CLI
@@ -57,9 +58,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PROJECT_DIR="$(find . -name pyproject.toml \
-            -not -path './.git/*' \
-            -print -quit | xargs -r dirname)"
+          PROJECT_DIR="$(find . \
+            -path './.git' -prune -o \
+            -name pyproject.toml -print -quit | xargs -r dirname)"
 
           test -n "$PROJECT_DIR" || {
             echo "Could not find pyproject.toml"
@@ -67,18 +68,15 @@ jobs:
           }
 
           echo "Found Flet project root at: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
           cd "$PROJECT_DIR"
-          
           python -m pip install .
 
       - name: Build APK
         shell: bash
         run: |
           set -euo pipefail
-          PROJECT_DIR="$(find . -name pyproject.toml \
-            -not -path './.git/*' \
-            -print -quit | xargs -r dirname)"
           cd "$PROJECT_DIR"
-          
-          flutter clean
           flet build apk --verbose
+          
