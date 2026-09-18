@@ -10,25 +10,11 @@ def main(page: ft.Page):
     status_text = ft.Text("Estado GPS: Pendiente", size=14)
     image_text = ft.Text("Imagen: Ninguna", size=14)
 
-    # Función que se ejecuta al seleccionar o hacer la foto
-    def on_dialog_result(e: ft.FilePickerResultEvent):
-        if e.files:
-            image_text.value = f"Imagen: {e.files[0].name}"
-            status_text.value = "Estado: Imagen seleccionada"
-            status_text.color = ft.Colors.GREEN
-            page.update()
-
-    # Inicialización del FilePicker y su registro en el overlay
-    file_picker = ft.FilePicker()
-    file_picker.on_result = on_dialog_result
-    page.overlay.append(file_picker)
-    page.update()
-
     def capturar_contenedor(e):
-        status_text.value = "Estado: Abriendo selector..."
-        status_text.color = ft.Colors.BLUE
+        status_text.value = "Estado: Botón pulsado correctamente"
+        status_text.color = ft.Colors.GREEN
+        image_text.value = "Imagen: Modo seguro activo"
         page.update()
-        file_picker.pick_files(allow_multiple=False)
 
     # Botón principal
     btn_capturar = ft.ElevatedButton(
