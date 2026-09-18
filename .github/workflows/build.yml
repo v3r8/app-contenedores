@@ -2,79 +2,46 @@ name: Build Flet APK
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: '3.29.3'
-          cache: true
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.44.8'
+        channel: 'stable'
+        cache: true
 
-      - name: Install system dependencies and Flet
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev
-          python -m pip install --upgrade pip
-          python -m pip install "flet==0.86.5" "flet-cli==0.86.5"
+    - name: Install Flet CLI
+      run: |
+        python -m pip install --upgrade pip
+        pip install flet
 
-      - name: Verify tool versions
-        run: |
-          flutter --version
-          flet --version
+    - name: Build Android APK
+      run: |
+        flet build apk --verbose
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: >
-            platform-tools
-            platforms;android-35
-            build-tools;35.0.0
-            ndk;27.0.12077973
-          accept-android-sdk-licenses: true
-
-      - name: Locate Flet project and install dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          PROJECT_DIR="$(find . \
-            -path './.git' -prune -o \
-            -name pyproject.toml -print -quit | xargs -r dirname)"
-
-          test -n "$PROJECT_DIR" || {
-            echo "Could not find pyproject.toml"
-            exit 1
-          }
-
-          echo "Found Flet project root at: $PROJECT_DIR"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-          cd "$PROJECT_DIR"
-          python -m pip install .
-          python -m pip check
-
-      - name: Build APK
-        shell: bash
-        run: |
-          set -o pipefail
-          cd "$PROJECT_DIR"
-          flet build apk --verbose
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-apk
+        path: build/apk/*.apk
