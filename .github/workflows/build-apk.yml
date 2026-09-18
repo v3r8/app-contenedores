@@ -28,8 +28,16 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.24.0'
-        channel: 'stable'
+        channel: stable
         cache: true
+
+    - name: Install Linux Flutter dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev
+
+    - name: Accept Android licenses
+      run: yes | flutter doctor --android-licenses
 
     - name: Install dependencies
       run: |
@@ -37,8 +45,7 @@ jobs:
         pip install flet==0.24.0
 
     - name: Build APK
-      run: |
-        flet build apk --verbose
+      run: flet build apk --verbose
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
