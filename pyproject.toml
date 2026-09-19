@@ -1,15 +1,11 @@
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "appcontenedores"
+name = "app-contenedores"
 version = "0.1.0"
-requires-python = ">=3.10"
+description = "Aplicación para control y reporte de contenedores"
 dependencies = [
-    "flet>=0.28.0",
+    "flet>=0.28.0"
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["appcontenedores*"]
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
