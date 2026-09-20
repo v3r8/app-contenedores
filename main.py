@@ -1,38 +1,26 @@
 import flet as ft
 
 def main(page: ft.Page):
-    page.title = "App Contenedores"
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.title = "Control de Contenedores"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-
-    status_text = ft.Text("Estado GPS: Pendiente", size=14)
-    image_text = ft.Text("Imagen: Ninguna", size=14)
-
-    def capturar_contenedor(e):
-        status_text.value = "Estado: Botón pulsado correctamente"
-        status_text.color = ft.colors.GREEN
-        image_text.value = "Imagen: Modo seguro activo"
-        page.update()
-
-    btn_capturar = ft.ElevatedButton(
-        content=ft.Row(
-            [
-                ft.Icon(ft.icons.CAMERA_ALT),
-                ft.Text("Tomar Foto y Obtener GPS"),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-        ),
-        on_click=capturar_contenedor,
-    )
-
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    
+    # Elementos visuales iniciales para comprobar que la app arranca correctamente
     page.add(
-        ft.Column(
-            [
-                status_text,
-                image_text,
-                btn_capturar,
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        ft.SafeArea(
+            ft.Column(
+                [
+                    ft.Icon(ft.icons.CONTAINER, size=60, color=ft.colors.BLUE),
+                    ft.Text("Control de Contenedores", size=22, weight=ft.FontWeight.BOLD),
+                    ft.Text("Estado: Conectado y estable", size=14, color=ft.colors.GREEN),
+                    ft.Container(height=20),
+                    ft.ElevatedButton("Iniciar Operación", icon=ft.icons.PLAY_ARROW)
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            )
         )
     )
+
+if __name__ == "__main__":
+    ft.app(target=main)
