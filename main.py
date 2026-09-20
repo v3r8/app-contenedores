@@ -40,3 +40,7 @@ def main(page: ft.Page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
     )
+
+# ESTA LÍNEA ES NECESARIA PARA QUE LA APP SE QUEDE ABIERTA:
+if __name__ == "__main__":
+    ft.app(target=main)
