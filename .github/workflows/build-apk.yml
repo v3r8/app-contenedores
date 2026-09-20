@@ -37,6 +37,7 @@ jobs:
       - name: Clean previous build cache
         run: |
           rm -rf build/ dist/
+          flet clean || true
 
       - name: Build Flet APK
         run: flet build apk

@@ -7,4 +7,4 @@ dependencies = [
 ]
 
 [tool.flet.app]
-path = "."
+module = "main"
