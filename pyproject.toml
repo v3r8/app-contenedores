@@ -1,15 +1,10 @@
 [project]
-name = "app-contenedores"
+name = "app_contenedores"
 version = "0.1.0"
 description = "Aplicacion para control de contenedores"
 dependencies = [
     "flet>=0.28.0"
 ]
 
-[tool.flet]
-app_path = "main.py"
-
 [tool.flet.app]
-product_name = "App Contenedores"
-org = "com.appcontenedores"
-company = "MiEmpresa"
+path = "."
