@@ -34,6 +34,10 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --force-reinstall "flet>=0.28.0"
 
+      - name: Clean previous build cache
+        run: |
+          rm -rf build/ dist/
+
       - name: Build Flet APK
         run: flet build apk
 
