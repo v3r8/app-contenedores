@@ -12,7 +12,7 @@ def main(page: ft.Page):
 
     def capturar_contenedor(e):
         status_text.value = "Estado: Botón pulsado correctamente"
-        status_text.color = ft.Colors.GREEN
+        status_text.color = ft.colors.GREEN
         image_text.value = "Imagen: Modo seguro activo"
         page.update()
 
@@ -20,7 +20,7 @@ def main(page: ft.Page):
     btn_capturar = ft.ElevatedButton(
         content=ft.Row(
             [
-                ft.Icon(ft.Icons.CAMERA_ALT),
+                ft.Icon(ft.icons.CAMERA_ALT),
                 ft.Text("Tomar Foto y Obtener GPS"),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
@@ -40,7 +40,3 @@ def main(page: ft.Page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
     )
-
-# ESTA LÍNEA ES NECESARIA PARA QUE LA APP SE QUEDE ABIERTA:
-if __name__ == "__main__":
-    ft.app(target=main)
