@@ -38,8 +38,8 @@ jobs:
         run: |
           rm -rf build/ dist/
 
-      - name: Build Flet APK standalone
-        run: flet build apk --project app-contenedores
+      - name: Build Flet APK
+        run: flet build apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
