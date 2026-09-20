@@ -1,11 +1,12 @@
 [project]
 name = "app-contenedores"
 version = "0.1.0"
-description = "Aplicación para control y reporte de contenedores"
+description = "Aplicacion para control de contenedores"
 dependencies = [
     "flet>=0.28.0"
 ]
 
-[build-system]
-requires = ["setuptools>=61.0.0"]
-build-backend = "setuptools.build_meta"
+[tool.flet]
+app_name = "app_contenedores"
+org = "com.appcontenedores"
+product_name = "App Contenedores"
