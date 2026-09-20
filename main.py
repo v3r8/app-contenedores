@@ -42,4 +42,5 @@ def main(page: ft.Page):
     )
 
 # Ejecutar la aplicación Flet
-ft.app(target=main)
+if __name__ == "__main__":
+    ft.app(target=main)
