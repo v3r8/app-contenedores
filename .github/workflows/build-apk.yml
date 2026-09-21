@@ -32,7 +32,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install "flet>=0.40.0"
+          python -m pip install "flet==0.40.0"
+
+      - name: Clean previous builds
+        run: |
+          rm -rf build/
+          rm -rf dist/
 
       - name: Build APK with Flet
         run: flet build apk --verbose --yes
