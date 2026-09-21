@@ -4,7 +4,7 @@ def main(page: ft.Page):
     page.title = "Control de Contenedores"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-
+    
     page.add(
         ft.SafeArea(
             ft.Column(
@@ -20,3 +20,6 @@ def main(page: ft.Page):
             )
         )
     )
+
+if __name__ == "__main__":
+    ft.app(target=main)
