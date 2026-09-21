@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install "flet==0.40.0"
+          python -m pip install flet
 
       - name: Clean previous builds
         run: |
