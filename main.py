@@ -21,7 +21,3 @@ def main(page: ft.Page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
     )
-
-
-if __name__ == "__main__":
-    ft.app(target=main)
