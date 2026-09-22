@@ -37,10 +37,20 @@ jobs:
           flet --version
 
       - name: Compilar APK con Flet
-        run: flet build apk
+        run: flet build apk --verbose
+
+      - name: Buscar todos los archivos generados
+        run: |
+          echo "=== Listado de carpetas y archivos recientes ==="
+          find . -maxdepth 3 -not -path '*/.*' -not -path './node_modules*'
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: bin/*.apk
+          path: |
+            bin/*.apk
+            dist/*.apk
+            **/build/**/*.apk
+            *.apk
+          if-no-files-found: ignore
