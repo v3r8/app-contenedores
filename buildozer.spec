@@ -1,36 +1,42 @@
 [app]
 
-# (str) Título de tu aplicación
-title = Mi Aplicacion
+# (str) Title of your application
+title = Control de Contenedores
 
-# (str) Nombre del paquete
-package.name = miapp
+# (str) Package name
+package.name = appcontenedores
 
-# (str) Dominio del paquete
-package.domain = org.flet
+# (str) Package domain (needed for android packaging)
+package.domain = org.v3r8
 
-# (list) Archivos fuente a incluir
-source.include_exts = py,png,jpg,atlas
+# (str) Source files to include (let it include python files and assets)
+source.include_exts = py,png,jpg,kv,atlas
 
-# (list) Requisitos de la aplicación
+# (list) Source files to include (let it include directory)
+source.include_dirs = assets
+
+# (list) Application requirements
 requirements = python3,flet
 
-# (int) Versión de la API de destino de Android
-android.targetsdk = 34
+# (str) Supported orientations
+orientation = portrait
 
-# (int) Versión mínima de la API que soportará tu APK
-android.minsdk = 26
+# (list) Permissions
+android.permissions = CAMERA,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION,INTERNET
 
-# (str) Arquitectura de Android compatible (64-bit para tu móvil)
+# (int) Target Android API, should be as high as possible
+android.api = 33
+
+# (int) Minimum API your APK / AAB will support
+android.minapi = 21
+
+# (str) Android architecture to build for
 android.archs = arm64-v8a
-
-# (list) Permisos necesarios (opcional)
-# android.permissions = INTERNET
 
 [buildozer]
 
-# (int) Nivel de registro (0 = solo errores, 1 = info, 2 = debug)
+# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
 
-# (int) Modo de depuración al construir (0 = release, 1 = debug)
-android.debug_identity = 1
+# (int) Display warning if buildozer is run as root (0 = False, 1 = True)
+warn_root = 1
