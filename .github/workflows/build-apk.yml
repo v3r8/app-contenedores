@@ -2,34 +2,45 @@ name: Compilar APK Flet
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Copiar repositorio
-      uses: actions/checkout@v4
+      - name: Copiar repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Instalar dependencias del sistema y Flet
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git libltdl-dev
-        pip install --upgrade pip
-        pip install flet buildozer
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: "stable"
+          cache: true
 
-    - name: Compilar APK con Buildozer
-      run: |
-        flet build apk
+      - name: Instalar dependencias del sistema y Flet
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git libltdl-dev
+          python -m pip install --upgrade pip
+          python -m pip install flet
 
-    - name: Subir APK como artefacto
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-apk
-        path: bin/*.apk
+      - name: Verificar herramientas
+        run: |
+          flutter --version
+          flet --version
+
+      - name: Compilar APK con Flet
+        run: flet build apk
+
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: bin/*.apk
